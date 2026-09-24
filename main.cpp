@@ -52,6 +52,18 @@ class Entry{
             };
             return months[month];
         }
+
+        int stringTimeToInteger(string time){
+            int hours = 0;
+            int minutes = 0;
+            int seconds = 0;
+            int totalSeconds = 0;
+
+            if (sscanf(time.c_str(), "%d:%d:%d", &hours, &minutes, &seconds) == 3){
+                totalSeconds = hours * 3600 + minutes * 60 + seconds;
+                return totalSeconds;
+            }
+        }
 };
 
 class Bitacora{
@@ -84,11 +96,12 @@ class Bitacora{
 };
 
 int main(){
-    // Entry testCase;
-    // cout << testCase.monthToNumber("Jul") << endl;
+    Entry testCase;
+    cout << testCase.stringTimeToInteger("24:00:00") << endl;
 
     Bitacora bitacora;
     bitacora.loadFile();
+    
 
     
     return 0;
