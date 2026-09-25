@@ -3,6 +3,8 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <cstdio>
+
 using namespace std;
 
 class Entry{
@@ -61,8 +63,8 @@ class Entry{
 
             if (sscanf(time.c_str(), "%d:%d:%d", &hours, &minutes, &seconds) == 3){
                 totalSeconds = hours * 3600 + minutes * 60 + seconds;
-                return totalSeconds;
             }
+            return totalSeconds;
         }
 
         bool useToCompare(const Entry& other) const{
@@ -77,7 +79,7 @@ class Entry{
                 return day < other.day;
             }
 
-            return stringTimeToInteger(time) < other.stringTimeToInteger(time);
+            return stringTimeToInteger(time) <= other.stringTimeToInteger(other.time);
         }
 
 };
@@ -85,6 +87,56 @@ class Entry{
 class Bitacora{
     private:
         vector<Entry> guardado;
+
+        void merge(int left, int m, int right){
+            int s1 = m - left + 1;
+            int s2 = right - m;
+
+            vector<Entry> L(s1);
+            vector<Entry> R(s2);
+
+            for (int i = 0; i < s1; i++) {
+                L[i] = guardado[left + i];
+            }
+            for (int j = 0; j < s2; j++){
+                R[j] = guardado[m + 1 + j];
+            }
+
+            int i = 0;
+            int j = 0;
+            int k = left;
+
+            while ( i < s1 && j < s2) {
+                if (L[i].useToCompare(R[j])){
+                    guardado[k] = L[i];
+                    i++;
+                } else{
+                    guardado[k] = R[j];
+                    j++;
+                }
+                k++;
+            }
+
+            while ( i < s1){
+                guardado[k] = L[i];
+                i++;
+                k++;
+            }
+            while (j < s2){
+                guardado[k] = R[j];
+                j++;
+                k++;
+            }
+        }
+
+        void mergeSort(int left, int right ){
+            if ( left < right ){
+                int m = left + (right - left) / 2;
+                mergeSort(left, m);
+                mergeSort(m + 1, right);
+                merge(left, m, right);
+            }
+        }
 
 
     public:
@@ -110,6 +162,13 @@ class Bitacora{
             cout << guardado.size() << " records loaded" <<endl;
         };
 
+        void sortData(){
+            if(!guardado.empty()){
+                mergeSort(0, guardado.size()-1);
+                cout << "Data correctly sorted" << endl;
+            }
+        }
+
 };
 
 int main(){
@@ -118,6 +177,7 @@ int main(){
 
     Bitacora bitacora;
     bitacora.loadFile();
+    bitacora.sortData();
     
 
 
