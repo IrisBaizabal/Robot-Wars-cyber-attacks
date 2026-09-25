@@ -46,14 +46,14 @@ class Entry{
             return reason;
         }
 
-        int monthToNumber(string month){
+        int monthToNumber(string month)const{
             map<string, int> months{
                 {"Jun", 6},{"Jul", 7},{"Aug", 8},{"Sep", 9},{"Oct", 10}
             };
             return months[month];
         }
 
-        int stringTimeToInteger(string time){
+        int stringTimeToInteger(string time)const{
             int hours = 0;
             int minutes = 0;
             int seconds = 0;
@@ -64,11 +64,28 @@ class Entry{
                 return totalSeconds;
             }
         }
+
+        bool useToCompare(const Entry& other) const{
+            int month1 = monthToNumber(month);
+            int month2 = monthToNumber(other.month);
+
+            if (month1 != month2){
+                return month1 < month2;
+            }
+
+            if (day != other.day){
+                return day < other.day;
+            }
+
+            return stringTimeToInteger(time) < other.stringTimeToInteger(time);
+        }
+
 };
 
 class Bitacora{
     private:
         vector<Entry> guardado;
+
 
     public:
         void loadFile(){
@@ -103,6 +120,7 @@ int main(){
     bitacora.loadFile();
     
 
-    
+
+
     return 0;
 }
