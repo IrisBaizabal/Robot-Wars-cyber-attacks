@@ -232,11 +232,11 @@ class Bitacora{
             ifstream readFile("bitacora.txt");
 
             while(getline(readFile, myLine)){
-                string month;
-                int day;
-                string time;
-                string ip;
-                string reason;
+                string month = "";
+                int day = 0;
+                string time = "";
+                string ip = "";
+                string reason = "" ;
                 
                 stringstream ss(myLine);
                 ss >> month >> day >> time >> ip;
@@ -247,7 +247,7 @@ class Bitacora{
             }
             readFile.close();
             cout << guardado.size() << " records loaded" <<endl;
-        };
+        }
 
         // Call mergeSort for the saved registers.
         // Parameters: None.
@@ -330,10 +330,10 @@ int main(){
     bitacora.loadFile();
     bitacora.sortData();
     
-    string startMonth;
-    string endMonth;
-    int startDay;
-    int endDay;
+    string startMonth = "";
+    string endMonth = "";
+    int startDay = 0;
+    int endDay = 0;
 
     cout << "Enter the start date (For example: Aug 14): ";
     cin >> startMonth >> startDay; 
@@ -345,7 +345,4 @@ int main(){
 
     return 0;
 
-
-
-    return 0;
 }
