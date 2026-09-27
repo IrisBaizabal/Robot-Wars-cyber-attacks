@@ -50,7 +50,7 @@ class Entry{
 
         int monthToNumber(string month)const{
             map<string, int> months{
-                {"Jun", 6},{"Jul", 7},{"Aug", 8},{"Sep", 9},{"Oct", 10}
+                {"Jan", 1},{"Feb", 2},{"Mar", 3},{"Apr", 4},{"May", 5},{"Jun", 6},{"Jul", 7},{"Aug", 8},{"Sep", 9},{"Oct", 10},{"Nov", 11},{"Dec", 12}
             };
             return months[month];
         }
@@ -79,7 +79,11 @@ class Entry{
                 return day < other.day;
             }
 
-            return stringTimeToInteger(time) <= other.stringTimeToInteger(other.time);
+            return stringTimeToInteger(time) < other.stringTimeToInteger(other.time);
+        }
+
+        string bitacoraline() const {
+            return month + " " + to_string(day) + " " + time + " " + ip + " " + reason;
         }
 
 };
@@ -169,16 +173,75 @@ class Bitacora{
             }
         }
 
+        void searchAndExport (string startMonth, int startDay, string endMonth, int endDay){
+            Entry startTarget(startMonth, startDay, "00:00:00", "", "");
+            Entry endTarget(endMonth, endDay, "23:59:59", "", "");
+
+            int startIndex = -1;
+            int endIndex = -1;
+            int low = 0;
+            int high = guardado.size() -1;
+
+            while (low <= high) {
+                int mid = low + (high - low) / 2;
+                if (guardado[mid].useToCompare(startTarget)) {
+                    low = mid + 1; 
+                } else {
+                    startIndex = mid;
+                    high = mid - 1;
+                }
+            }
+
+            low = 0; 
+            high = guardado.size() - 1;
+            while (low <= high) {
+                int mid = low + (high - low) / 2;
+                if (endTarget.useToCompare(guardado[mid])) {
+                    high = mid - 1; 
+                } else {
+                    endIndex = mid; 
+                    low = mid + 1;
+                }
+            }
+
+            if (startIndex != -1 && endIndex != -1 && startIndex <= endIndex) {
+                ofstream outFile("results.txt");
+                int recordCount = 0;
+                
+               
+                for (int i = startIndex; i <= endIndex; i++) {
+                    outFile << guardado[i].bitacoraline() << "\n";
+                    recordCount++;
+                }
+                
+                outFile.close();
+                cout << recordCount << " records found and exported to 'results.txt'" << endl;
+            } else {
+                cout << "No records were found in the specified date range." << endl;
+            }
+        }
+
 };
 
 int main(){
-    Entry testCase;
-    cout << testCase.stringTimeToInteger("24:00:00") << endl;
-
     Bitacora bitacora;
     bitacora.loadFile();
     bitacora.sortData();
     
+    string startMonth;
+    string endMonth;
+    int startDay;
+    int endDay;
+
+    cout << "Enter the start date (For example: Aug 14): ";
+    cin >> startMonth >> startDay; 
+
+    cout << "Enter the end date (For example: Sep 10): ";
+    cin >> endMonth >> endDay;
+
+    bitacora.searchAndExport(startMonth, startDay, endMonth, endDay);
+
+    return 0;
 
 
 
