@@ -184,7 +184,7 @@ class Bitacora{
             int k = left;
 
             while ( i < s1 && j < s2) {
-                if (L[i].useToCompare(R[j])){
+                if (!R[j].useToCompare(L[i])){
                     guardado[k] = L[i];
                     i++;
                 } else{
@@ -242,8 +242,13 @@ class Bitacora{
                 ss >> month >> day >> time >> ip;
                 getline(ss >> ws, reason);
 
+                if (!reason.empty() && reason.back() == '\r') {
+                    reason.pop_back();
+                }
+
                 Entry entry(month, day, time, ip, reason);
                 guardado.push_back(entry);
+
             }
             readFile.close();
             cout << guardado.size() << " records loaded" <<endl;
@@ -309,6 +314,7 @@ class Bitacora{
                
                 for (int i = startIndex; i <= endIndex; i++) {
                     outFile << guardado[i].bitacoraline() << "\n";
+                    cout << guardado[i].bitacoraline() << endl;
                     recordCount++;
                 }
                 
