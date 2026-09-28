@@ -2,7 +2,7 @@
 // Created: 22/09/2026
 // Finished: 27/09/2026
 // Authors: 
-// Carmen Iris Vazquez Baizabal - A00843705
+// Carmen Iris Vasquez Baizabal - A00843705
 // Francisco Santos Martinez Ortiz - A00843605
 // Erika Esquivel Correa - A00841206
 // This program reads a text file called "bitacora.txt" to sort it
@@ -14,6 +14,7 @@
 #include <vector>
 #include <map>
 #include <cstdio>
+#include <string>
 
 using namespace std;
 
@@ -99,14 +100,21 @@ class Entry{
         }
 
         // Converter of the abbreviated name of the month to its equivalent in number.
-        // Parameters: month (string) - Abbreviaton of the month to be converted.
+        // Parameters: monthName (const string&) - Abbreviation of the month to be converted.
         // Return: Integer corresponding to the month's number.
         // O(1)
-        int monthToNumber(string month)const{
-            map<string, int> months{
-                {"Jan", 1},{"Feb", 2},{"Mar", 3},{"Apr", 4},{"May", 5},{"Jun", 6},{"Jul", 7},{"Aug", 8},{"Sep", 9},{"Oct", 10},{"Nov", 11},{"Dec", 12}
-            };
-            return months[month];
+        int monthToNumber(const string& monthName) const {
+            static const string monthNames[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+            int monthNumber = 0;
+            int index = 0;
+
+            while (index < 12 && monthNumber == 0) {
+                if (monthNames[index] == monthName) {
+                    monthNumber = index + 1;
+                }
+                index++;
+            }
+            return monthNumber;
         }
 
         // Convert the string of time (HH:MM:SS) to its equivalent in seconds for comparing.
@@ -148,15 +156,15 @@ class Entry{
         // Parameters: None.
         // Return: String to save with the data.
         // O(1)
-        string bitacoraline() const {
+        string logLine() const {
             return month + " " + to_string(day) + " " + time + " " + ip + " " + reason;
         }
 
 };
 
-class Bitacora{
+class SystemLog{
     private:
-        vector<Entry> guardado;
+        vector<Entry> logEntries;
 
         // Merge to arrangements ordered in the entries vector.
         // Parameters: 
@@ -173,10 +181,10 @@ class Bitacora{
             vector<Entry> R(s2);
 
             for (int i = 0; i < s1; i++) {
-                L[i] = guardado[left + i];
+                L[i] = logEntries[left + i];
             }
             for (int j = 0; j < s2; j++){
-                R[j] = guardado[m + 1 + j];
+                R[j] = logEntries[m + 1 + j];
             }
 
             int i = 0;
@@ -185,22 +193,22 @@ class Bitacora{
 
             while ( i < s1 && j < s2) {
                 if (!R[j].useToCompare(L[i])){
-                    guardado[k] = L[i];
+                    logEntries[k] = L[i];
                     i++;
                 } else{
-                    guardado[k] = R[j];
+                    logEntries[k] = R[j];
                     j++;
                 }
                 k++;
             }
 
             while ( i < s1){
-                guardado[k] = L[i];
+                logEntries[k] = L[i];
                 i++;
                 k++;
             }
             while (j < s2){
-                guardado[k] = R[j];
+                logEntries[k] = R[j];
                 j++;
                 k++;
             }
@@ -247,11 +255,11 @@ class Bitacora{
                 }
 
                 Entry entry(month, day, time, ip, reason);
-                guardado.push_back(entry);
+                logEntries.push_back(entry);
 
             }
             readFile.close();
-            cout << guardado.size() << " records loaded" <<endl;
+            cout << logEntries.size() << " records loaded" <<endl;
         }
 
         // Call mergeSort for the saved registers.
@@ -259,8 +267,8 @@ class Bitacora{
         // Return: None.
         // O(n log n)
         void sortData(){
-            if(!guardado.empty()){
-                mergeSort(0, guardado.size()-1);
+            if(!logEntries.empty()){
+                mergeSort(0, logEntries.size()-1);
                 cout << "Data correctly sorted" << endl;
             }
         }
@@ -280,12 +288,12 @@ class Bitacora{
             int startIndex = -1;
             int endIndex = -1;
             int low = 0;
-            int high = guardado.size() -1;
+            int high = logEntries.size() -1;
 
             // Binary search of the initial index.
             while (low <= high) {
                 int mid = low + (high - low) / 2;
-                if (guardado[mid].useToCompare(startTarget)) {
+                if (logEntries[mid].useToCompare(startTarget)) {
                     low = mid + 1; 
                 } else {
                     startIndex = mid;
@@ -294,12 +302,12 @@ class Bitacora{
             }
 
             low = 0; 
-            high = guardado.size() - 1;
+            high = logEntries.size() - 1;
 
             // Binary search of the last index.
             while (low <= high) {
                 int mid = low + (high - low) / 2;
-                if (endTarget.useToCompare(guardado[mid])) {
+                if (endTarget.useToCompare(logEntries[mid])) {
                     high = mid - 1; 
                 } else {
                     endIndex = mid; 
@@ -308,13 +316,13 @@ class Bitacora{
             }
 
             if (startIndex != -1 && endIndex != -1 && startIndex <= endIndex) {
-                ofstream outFile("results.txt");
+                ofstream outFile("results4.txt");
                 int recordCount = 0;
                 
                
                 for (int i = startIndex; i <= endIndex; i++) {
-                    outFile << guardado[i].bitacoraline() << "\n";
-                    cout << guardado[i].bitacoraline() << endl;
+                    outFile << logEntries[i].logLine() << "\n";
+                    cout << logEntries[i].logLine() << endl;
                     recordCount++;
                 }
                 
@@ -332,9 +340,9 @@ class Bitacora{
  // Return: 0.
  // O(n log n)
 int main(){
-    Bitacora bitacora;
-    bitacora.loadFile();
-    bitacora.sortData();
+    SystemLog systemLog;
+    systemLog.loadFile();
+    systemLog.sortData();
     
     string startMonth = "";
     string endMonth = "";
@@ -347,7 +355,7 @@ int main(){
     cout << "Enter the end date (For example: Sep 10): ";
     cin >> endMonth >> endDay;
 
-    bitacora.searchAndExport(startMonth, startDay, endMonth, endDay);
+    systemLog.searchAndExport(startMonth, startDay, endMonth, endDay);
 
     return 0;
 
