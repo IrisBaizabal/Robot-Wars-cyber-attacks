@@ -7,6 +7,7 @@
 
 using namespace std;
 
+
 class Entry{
     private:
         string month;
@@ -150,10 +151,112 @@ class Entry{
 
 };
 
-class SystemLog{
-    private: 
-        vector<Entry> logEntries;
+struct Node {
+    Entry datos;
+    Node* next;
+    Node* prev;
 
-        // Orders with pivot (quicksort) the vector of information
-        // Parameters
+    Node(Entry valor){
+        datos = valor;
+        next = nullptr;
+        prev = nullptr;
+    }
+};
+
+struct StackNode {
+    Node* low;
+    Node* high;
+    StackNode* next;
+
+    StackNode(Node* lowNode, Node* highNode){
+        low = lowNode;
+        high = highNode;
+        next = nullptr;
+    }
+};
+
+class StackConstructor {
+    private: 
+        StackNode* nodoSuperior;
+    
+    public:
+        StackConstructor(){
+            nodoSuperior = nullptr;
+        }
+    
+        bool vacio() const{
+            return nodoSuperior == nullptr;
+        }
+
+        void push(Node* low, Node* high){
+            StackNode* nNode = new StackNode(low, high);
+            nNode->next = nodoSuperior;
+            nodoSuperior = nNode;
+        }
+
+        bool pop(Node* low, Node* high){
+            if (!vacio()){
+                return false;
+            }
+            low = nodoSuperior->low;
+            high = nodoSuperior->high;
+            StackNode* help = nodoSuperior;
+            nodoSuperior = nodoSuperior->next;
+
+            return true;
+        }
+};
+
+class SystemLog{
+    private:
+        Node* head;
+        Node* tail;
+        int contador;
+
+        // no se hacer esto lol ayuda iris baizabal
+        Node* partir(Node* low, Node* high){
+            Entry pivote;
+        }
+
+    public:
+        SystemLog(){
+            head = nullptr;
+            tail = nullptr;
+            contador = 0;
+        }
+        
+        ~SystemLog(){
+            Node* current = head;
+            while (current != nullptr){
+                Node* nextNode = current->next;
+                delete current;
+                current = nextNode;
+            }
+        }
+
+        void quickSort(){
+            if (head != nullptr){
+                StackConstructor stack;
+                stack.push(head, tail);
+
+                Node* low = nullptr;
+                Node* high = nullptr;
+
+                while(stack.pop(low, high)){
+                    if (high != nullptr && low != high && low != high->next){
+                        Node* pivote = partir(low, high);
+
+                        if (pivote != nullptr && pivote != low){
+                            stack.push(low, pivote->prev);
+                        }
+
+                        if (pivote != nullptr && pivote !=high){
+                            stack.push(pivote->next, high);
+                        }
+                    }
+                }
+                cout <<"Data sorted with IP and Timestamp with Quick Sort.";
+            }
+        }
+
 };
