@@ -166,6 +166,10 @@ class Entry{
             return timestamp <= other.timestamp;
         }
 
+        bool useToCompareDate(const Entry& other) const {
+            return timestamp <= other.timestamp;
+        }
+
         // Create the line with the entry values.
         // Parameters: None.
         // Return: String to save with the data.
@@ -252,16 +256,18 @@ class SystemLog{
             b->data = temp;
         }
 
-        Node* partition(Node* low, Node* high) {
+        Node* partition(Node* low, Node* high, bool byIp) {
             Entry pivot = high->data;
             Node* i = low->prev;
 
             for (Node* j = low; j != high; j = j->next) {
-                if (j->data.useToCompareIp(pivot)) {
+                if (byIp ? j->data.useToCompareIp(pivot)
+                        : j->data.useToCompareDate(pivot)) {
                     i = (i == nullptr) ? low : i->next;
                     swapData(i, j);
                 }
             }
+
             i = (i == nullptr) ? low : i->next;
             swapData(i, high);
             return i;
@@ -325,7 +331,7 @@ class SystemLog{
             cout << counter << " records loaded" << endl;
         }
 
-        void quickSort() {
+        void quickSort(bool byIp) {
             if (head != nullptr && head != tail) {
                 Stack stack;
                 stack.push(head);
@@ -336,7 +342,7 @@ class SystemLog{
                     Node* low = stack.pop();
 
                     if (low != nullptr && high != nullptr && low != high && low != high->next) {
-                        Node* pivot = partition(low, high);
+                        Node* pivot = partition(low, high, byIp);
 
                         if (pivot != nullptr && pivot != low && low != pivot->prev) {
                             stack.push(low);
@@ -349,11 +355,15 @@ class SystemLog{
                         }
                     }
                 }
-                cout << "Data sorted." << endl;
+                if (byIp) {
+                    cout << "Data sorted by IP." << endl;
+                } else {
+                    cout << "Data sorted by Date." << endl;
+                }
             }
-        }
+        }    
 
-        void searchAndExport(string startIp, string endIp, string outFilename = "output.txt") const {
+        void searchAndExportIp(string startIp, string endIp, string outFilename = "output.txt") const {
             long long minIp = Entry::ipToNumber(startIp);
             long long maxIp = Entry::ipToNumber(endIp);
 
@@ -388,24 +398,85 @@ class SystemLog{
             }
         }
 
+        void searchAndExportDate(string startMonth, int startDay, string endMonth, int endDay, string outFilename = "output.txt") const {
+            Entry startTarget(startMonth, startDay, "00:00:00", "", "");
+            Entry endTarget(endMonth, endDay, "23:59:59", "", "");
+
+            long long minTime = startTarget.getTimestamp();
+            long long maxTime = endTarget.getTimestamp();
+
+            if (minTime > maxTime) {
+                long long temp = minTime;
+                minTime = maxTime;
+                maxTime = temp;
+            }
+
+            ofstream outFile(outFilename);
+            int recordCount = 0;
+
+            Node* current = head;
+            while (current != nullptr) {
+                long long currentTime = current->data.getTimestamp();
+
+                if (currentTime >= minTime && currentTime <= maxTime) {
+                    outFile << current->data.logLine() << "\n";
+                    cout << current->data.logLine() << endl;
+                    recordCount++;
+                } else if (currentTime > maxTime) {
+                    break;
+                }
+                current = current->next;
+            }
+
+            outFile.close();
+            if (recordCount > 0) {
+                cout << recordCount << " records found and exported to '" << outFilename << "'" << endl;
+            } else {
+                cout << "No records were found in the specified date range." << endl;
+            }
+        }
 };
 
 
 int main() {
     SystemLog systemLog;
     systemLog.loadFile();
-    systemLog.quickSort();
 
-    string startIp = "";
-    string endIp = "";
+    string option = "";
+    cout << "How do you want to sort and search the data? (Type 'ip' or 'date'): ";
+    cin >> option;
 
-    cout << "Enter the starting IP address (For example: 108.57.27.85): ";
-    cin >> startIp;
+    if (option == "date" || option == "Date" || option == "DATE") {
+        systemLog.quickSort(false);
 
-    cout << "Enter the ending IP address (For example: 423.2.230.77): ";
-    cin >> endIp;
+        string startMonth = "";
+        string endMonth = "";
+        int startDay = 0;
+        int endDay = 0;
 
-    systemLog.searchAndExport(startIp, endIp, "output.txt");
+        cout << "Enter the start date (For example: Aug 14): ";
+        cin >> startMonth >> startDay;
+
+        cout << "Enter the end date (For example: Sep 10): ";
+        cin >> endMonth >> endDay;
+
+        systemLog.searchAndExportDate(startMonth, startDay, endMonth, endDay, "output.txt");
+    } else if (option == "ip" || option == "Ip" || option == "IP"){
+        systemLog.quickSort(true);
+
+        string startIp = "";
+        string endIp = "";
+
+        cout << "Enter the starting IP address (For example: 108.57.27.85): ";
+        cin >> startIp;
+
+        cout << "Enter the ending IP address (For example: 423.2.230.77): ";
+        cin >> endIp;
+
+        systemLog.searchAndExportIp(startIp, endIp, "output.txt");
+    } else{
+        cout << "Option not valid" << endl;
+    }
 
     return 0;
 }
