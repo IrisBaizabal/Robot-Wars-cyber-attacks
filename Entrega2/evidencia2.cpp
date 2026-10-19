@@ -303,7 +303,10 @@ class SystemLog{
             tail = nullptr;
             counter = 0;
         }
-        
+//Destructor of the class SystemLog, frees all the nodes of the list
+//Parameters: none
+//Return: none
+//O(n) 
         ~SystemLog(){
             Node* current = head;
             while (current != nullptr){
@@ -312,7 +315,10 @@ class SystemLog{
                 current = nextNode;
             }
         }
-
+//Adds a new entry at the end of the list
+//Parameters: entry (const Entry&)
+//Return: nothing
+//O(1)
         void addEntry(const Entry& entry){
             Node* newNode = new Node(entry);
             if (head == nullptr){
@@ -325,7 +331,10 @@ class SystemLog{
             }
             counter++;
         }
-
+//Sorts the whole list by IP and, for equal IPs, by timestamp, uses an iterative Quick Sort
+//Parameters: none
+//Return: nothing
+//Average case: O(n log n), Worst case: O(n^2)
         void quickSort(){
             if (head != nullptr){
                 Stack stack;
