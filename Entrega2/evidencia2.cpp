@@ -209,16 +209,26 @@ class Stack{
         StackNode* topNode;
     
     public:
+//Constructor of the class Stack, it creates an empty stack
+//Parameters:none
+//Return: none
+//O(1)
         Stack(){
             topNode = nullptr;
         }
-
+//Destructor of the class Stack. Frees all the nodes that remain in the stack.
+//Parameters: none
+//Return: none
+//O(n)
         ~Stack(){
             while (!isEmpty()){
                 pop();
             }
         }
-    
+//Checks if the stack is empty
+//Parameters: none
+//Return: Boolean, true if the stack has no elements.
+//O(1)
         bool isEmpty() const{
             return topNode == nullptr;
         }
