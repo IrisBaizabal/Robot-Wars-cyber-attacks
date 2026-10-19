@@ -443,7 +443,7 @@ int main() {
     systemLog.loadFile();
 
     string option = "";
-    cout << "How do you want to sort and search the data? (Type 'ip' or 'date'): ";
+    cout << "How do you want to sort and search the data? ('ip' or 'date'): ";
     cin >> option;
 
     if (option == "date" || option == "Date" || option == "DATE") {
