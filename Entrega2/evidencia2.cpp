@@ -232,13 +232,19 @@ class Stack{
         bool isEmpty() const{
             return topNode == nullptr;
         }
-
+//Adds a range (low, high) to the top of the stack
+//Parameters: low (Node*): first node of the range, high (Node*): last node of the range
+//Return: none
+//O(1)
         void push(Node* low, Node* high){
             StackNode* nNode = new StackNode(low, high);
             nNode->next = topNode;
             topNode = nNode;
         }
-
+//Removes the range at the top of the stack and returns it through the parameters
+//Parameters: low (Node*): receives the first node of the removed range, high (Node*): receives the last node of the removed range
+//Return: Boolean, true if an element was removed or if its empty returns false
+//O(1)
         bool pop(Node* low, Node* high){
             if (isEmpty()){
                 return false;
@@ -251,19 +257,25 @@ class Stack{
             return true;
         }
 };
-
+//Class that stores all the entries of the log in a doubly linked list and sorts them by IP and timestamp using Quick Sort
 class SystemLog{
     private:
         Node* head;
         Node* tail;
         int counter;
-
+//Swaps the Entry stored in two nodes (the nodes stay in place, only the data moves)
+//Parameters: a (Node*): first node, b (Node*): second node
+//Return: none
+//O(1)
         void swapData(Node* a, Node* b) {
             Entry temp = a->data;
             a->data = b->data;
             b->data = temp;
         }
-
+//Partition step of Quick Sort
+//Parameters: low (Node*): first node of the range to partition, high (Node*): last node of the range (the pivot)
+//Return: Node* with the final position of the pivot
+//O(k), where k is the number of nodes in the range [low, high]
         Node* partition(Node* low, Node* high) {
             Entry pivot = high->data;
             Node* i = low->prev;
@@ -282,6 +294,10 @@ class SystemLog{
 
 
     public:
+//Constructor of the class SystemLog, creates an empty list
+//Parameters: none
+//Return: none
+//O(1)
         SystemLog(){
             head = nullptr;
             tail = nullptr;
