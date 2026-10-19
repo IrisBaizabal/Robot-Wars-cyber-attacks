@@ -50,7 +50,7 @@ class Entry{
             time = Time;
             ip = Ip;
             reason = Reason;
-            timestamp = timestamp();
+            timestamp = timestamps();
             ipNumber = ipToNumber(ip);
         }
 
@@ -138,7 +138,7 @@ class Entry{
         
         // Calculates the timestamp combining month, day and time in seconds.
         // O (1)
-        long long timestamp() const{
+        long long timestamps() const{
             long long m = monthToNumber(month);
             long d = day;
             long long s = stringTimeToInteger(time);
@@ -178,12 +178,12 @@ class Entry{
 
 class Node {
     public: 
-        Entry datos;
+        Entry data;
         Node* next;
         Node* prev;
 
         Node(Entry valor){
-            datos = valor;
+            data = valor;
             next = nullptr;
             prev = nullptr;
         }
@@ -222,22 +222,21 @@ class Stack{
             return topNode == nullptr;
         }
 
-        void push(Node* low, Node* high){
-            StackNode* nNode = new StackNode(low, high);
-            nNode->next = topNode;
-            topNode = nNode;
+        void push(Node* address) {
+            StackNode* newNode = new StackNode(address);
+            newNode->next = topNode;
+            topNode = newNode;
         }
 
-        bool pop(Node* low, Node* high){
-            if (isEmpty()){
-                return false;
+        Node* pop() {
+            if (isEmpty()) {
+                return nullptr;
             }
-            low = topNode->low;
-            high = topNode->high;
             StackNode* help = topNode;
+            Node* address = topNode->address;
             topNode = topNode->next;
-
-            return true;
+            delete help;
+            return address;
         }
 };
 
@@ -258,7 +257,7 @@ class SystemLog{
             Node* i = low->prev;
 
             for (Node* j = low; j != high; j = j->next) {
-                if (j->data.useToCompare(pivot)) {
+                if (j->data.useToCompareIp(pivot)) {
                     i = (i == nullptr) ? low : i->next;
                     swapData(i, j);
                 }
@@ -299,37 +298,114 @@ class SystemLog{
             counter++;
         }
 
-        void quickSort(){
-            if (head != nullptr){
+        void loadFile(){
+            string myLine = "";
+            ifstream readFile("bitacora.txt");
+
+            while(getline(readFile, myLine)){
+                string month = "";
+                int day = 0;
+                string time = "";
+                string ip = "";
+                string reason = "" ;
+                
+                stringstream ss(myLine);
+                ss >> month >> day >> time >> ip;
+                getline(ss >> ws, reason);
+
+                if (!reason.empty() && reason.back() == '\r') {
+                    reason.pop_back();
+                }
+
+                Entry entry(month, day, time, ip, reason);
+                addEntry(entry);
+            }
+
+            readFile.close();
+            cout << counter << " records loaded" << endl;
+        }
+
+        void quickSort() {
+            if (head != nullptr && head != tail) {
                 Stack stack;
-                stack.push(head, tail);
+                stack.push(head);
+                stack.push(tail);
 
-                Node* low = nullptr;
-                Node* high = nullptr;
+                while (!stack.isEmpty()) {
+                    Node* high = stack.pop();
+                    Node* low = stack.pop();
 
-                while(stack.pop(low, high)){
-                    if (high != nullptr && low != high && low != high->next){
-                        Node* pivote = partir(low, high);
+                    if (low != nullptr && high != nullptr && low != high && low != high->next) {
+                        Node* pivot = partition(low, high);
 
-                        if (pivote != nullptr && pivote != low){
-                            stack.push(low, pivote->prev);
+                        if (pivot != nullptr && pivot != low && low != pivot->prev) {
+                            stack.push(low);
+                            stack.push(pivot->prev);
                         }
 
-                        if (pivote != nullptr && pivote !=high){
-                            stack.push(pivote->next, high);
+                        if (pivot != nullptr && pivot != high && high != pivot->next) {
+                            stack.push(pivot->next);
+                            stack.push(high);
                         }
                     }
                 }
-                cout <<"Data sorted with IP and Timestamp with Quick Sort.";
+                cout << "Data sorted." << endl;
+            }
+        }
+
+        void searchAndExport(string startIp, string endIp, string outFilename = "output.txt") const {
+            long long minIp = Entry::ipToNumber(startIp);
+            long long maxIp = Entry::ipToNumber(endIp);
+
+            if (minIp > maxIp) {
+                long long temp = minIp;
+                minIp = maxIp;
+                maxIp = temp;
+            }
+
+            ofstream outFile(outFilename);
+            int recordCount = 0;
+
+            Node* current = head;
+            while (current != nullptr) {
+                long long currentIp = current->data.getIpNumber();
+
+                if (currentIp >= minIp && currentIp <= maxIp) {
+                    outFile << current->data.logLine() << "\n";
+                    cout << current->data.logLine() << endl;
+                    recordCount++;
+                } else if (currentIp > maxIp) {
+                    break;
+                }
+                current = current->next;
+            }
+
+            outFile.close();
+            if (recordCount > 0) {
+                cout << recordCount << " records found and exported to '" << outFilename << "'" << endl;
+            } else {
+                cout << "No records were found in the specified IP range." << endl;
             }
         }
 
 };
 
-class SystemLog{
 
-};
+int main() {
+    SystemLog systemLog;
+    systemLog.loadFile();
+    systemLog.quickSort();
 
-int main(){
+    string startIp = "";
+    string endIp = "";
 
+    cout << "Enter the starting IP address (For example: 108.57.27.85): ";
+    cin >> startIp;
+
+    cout << "Enter the ending IP address (For example: 423.2.230.77): ";
+    cin >> endIp;
+
+    systemLog.searchAndExport(startIp, endIp, "output.txt");
+
+    return 0;
 }
