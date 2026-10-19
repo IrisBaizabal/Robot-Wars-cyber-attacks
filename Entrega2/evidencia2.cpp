@@ -54,50 +54,37 @@ class Entry{
             ipNumber = ipToNumber(ip);
         }
 
-        // Get the month of the event.
-        // Parameters: None.
-        // Return: String with the month of the event.
         // O(1)
         string getMonth() const{
             return month;
         }
 
-        // Get the day of the event.
-        // Parameters: None.
-        // Return: Integer with the day of the event.
         // O(1)
         int getDay() const{
             return day;
         }
 
-        // Get the time of the event.
-        // Parameters: None.
-        // Return: String with the time (HH:MM:SS) of the event.
         // O(1)
         string getTime() const{
             return time;
         }
 
-        // Get the IP of the event.
-        // Parameters: None.
-        // Return: String with the IP of the event.
         // O(1)
         string getIp() const{
             return ip;
         }
 
-        // Get the reason of the event.
-        // Parameters: None.
-        // Return: String with the reason of the event.
         // O(1)
         string getReason() const{
             return reason;
         }
 
+        // O(1)
         long long getTimestamp() const{
             return timestamp;
         }
 
+        // O(1)
         long long getIpNumber() const {
             return ipNumber;
         }
@@ -137,7 +124,9 @@ class Entry{
         }
         
         // Calculates the timestamp combining month, day and time in seconds.
-        // O (1)
+        // Parameters: None
+        // Return: Long long with the equal of time in seconds.
+        // O(1)
         long long timestamps() const{
             long long m = monthToNumber(month);
             long d = day;
@@ -146,6 +135,8 @@ class Entry{
         }
 
         // Converts an IP into an integer by by padding each octet to 3 digits.
+        // Parameters: IP address.
+        // Return: Long long with the equal of IP number
         // O(1)
         static long long ipToNumber(const string& ip) {
             int o1 = 0, o2 = 0, o3 = 0, o4 = 0;
@@ -166,6 +157,11 @@ class Entry{
             return timestamp <= other.timestamp;
         }
 
+        // Compare if a date happened before other.
+        // Parameters: Other date.
+        // Return: True if the event happened before the second (other) one.
+        //         False if the event happened after the second (other) one.
+        // O(1)
         bool useToCompareDate(const Entry& other) const {
             return timestamp <= other.timestamp;
         }
@@ -186,6 +182,11 @@ class Node {
         Node* next;
         Node* prev;
 
+        // Default constructor of the class Node.
+        // Initialize the atributes with a zero or empty.
+        // Parameters: Value of the node.
+        // Return: None
+        // O(1)
         Node(Entry valor){
             data = valor;
             next = nullptr;
@@ -212,26 +213,47 @@ class Stack{
         StackNode* topNode;
     
     public:
+
+        // Default constructor of the class stack.
+        // Parameters: None.
+        // Return: None
+        // O(1)
         Stack(){
             topNode = nullptr;
         }
 
+        // Default destructor of the class stack.
+        // Parameters: None.
+        // Return: None
+        // O(n)
         ~Stack(){
             while (!isEmpty()){
                 pop();
             }
         }
     
+        // Checks if something is empty.
+        // Parameters: None.
+        // Return: None
+        // O(1)
         bool isEmpty() const{
             return topNode == nullptr;
         }
 
+        // Inserter of elements of the pile.
+        // Parameters: Pointer with the address of node.
+        // Return: None
+        // O(1)
         void push(Node* address) {
             StackNode* newNode = new StackNode(address);
             newNode->next = topNode;
             topNode = newNode;
         }
 
+        // Get out the Node* and deleting the stacknode.
+        // Parameters: None.
+        // Return: Address of popped element.
+        // O(1)
         Node* pop() {
             if (isEmpty()) {
                 return nullptr;
@@ -250,12 +272,20 @@ class SystemLog{
         Node* tail;
         int counter;
 
+        // Swapper of elements with pointers.
+        // Parameters: Addresses of the elements (2) to be swapped.
+        // Return: None.
+        // O(1)
         void swapData(Node* a, Node* b) {
             Entry temp = a->data;
             a->data = b->data;
             b->data = temp;
         }
 
+        // Partition to use in quick sort.
+        // Parameters: Pointer of lowest element, highest and the boolean value of IP use.
+        // Return: Index of next pivot.
+        // O(1)
         Node* partition(Node* low, Node* high, bool byIp) {
             Entry pivot = high->data;
             Node* i = low->prev;
@@ -276,12 +306,20 @@ class SystemLog{
 
 
     public:
+        // Default constructor of the class SystemLog.
+        // Parameters: None.
+        // Return: None
+        // O(1)
         SystemLog(){
             head = nullptr;
             tail = nullptr;
             counter = 0;
         }
         
+        // Default destructor of the class SystemLog.
+        // Parameters: None.
+        // Return: None
+        // O(n)
         ~SystemLog(){
             Node* current = head;
             while (current != nullptr){
@@ -291,6 +329,10 @@ class SystemLog{
             }
         }
 
+        // Adds a new entry to the system log.
+        // Parameters: Reference of entry class.
+        // Return: None
+        // O(1)
         void addEntry(const Entry& entry){
             Node* newNode = new Node(entry);
             if (head == nullptr){
@@ -304,6 +346,10 @@ class SystemLog{
             counter++;
         }
 
+        // Loads log entries with the txt.
+        // Parameters: None.
+        // Return: None
+        // O(n)
         void loadFile(){
             string myLine = "";
             ifstream readFile("bitacora.txt");
@@ -331,6 +377,10 @@ class SystemLog{
             cout << counter << " records loaded" << endl;
         }
 
+        // Quick sort to organize byIp.
+        // Parameters: True or false if it uses IP.
+        // Return: None
+        // O(n log n)
         void quickSort(bool byIp) {
             if (head != nullptr && head != tail) {
                 Stack stack;
@@ -363,6 +413,10 @@ class SystemLog{
             }
         }    
 
+        // Exports the IP register of matches.
+        // Parameters: Starter IP (string), end IP (string), name of the output txt (string).
+        // Return: None
+        // O(n)
         void searchAndExportIp(string startIp, string endIp, string outFilename = "output.txt") const {
             long long minIp = Entry::ipToNumber(startIp);
             long long maxIp = Entry::ipToNumber(endIp);
@@ -398,6 +452,10 @@ class SystemLog{
             }
         }
 
+        // Exporter by date the matches.
+        // Parameters: Start month (string), start day of date (int), end month of date (string), end day of date (int), output file name (string).
+        // Return: None
+        // O(n)
         void searchAndExportDate(string startMonth, int startDay, string endMonth, int endDay, string outFilename = "output.txt") const {
             Entry startTarget(startMonth, startDay, "00:00:00", "", "");
             Entry endTarget(endMonth, endDay, "23:59:59", "", "");
@@ -437,7 +495,10 @@ class SystemLog{
         }
 };
 
-
+// Main program.
+// Parameters: None.
+// Return: 0 (and txt file of desired format, ip or date).
+// O(n log n)
 int main() {
     SystemLog systemLog;
     systemLog.loadFile();
