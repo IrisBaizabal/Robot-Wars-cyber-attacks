@@ -15,6 +15,8 @@ class Entry{
         string time;
         string ip;
         string reason;
+        long long timestamp;
+        long long ipNumber;
 
     public:
         // Default constructor of the class Entry.
@@ -28,6 +30,8 @@ class Entry{
             time = "";
             ip = "";
             reason = "";
+            timestamp = 0;
+            ipNumber = 0;
         }
 
         // Constructor with parameters of the class Entry.
@@ -46,6 +50,8 @@ class Entry{
             time = Time;
             ip = Ip;
             reason = Reason;
+            timestamp = timestamp();
+            ipNumber = ipToNumber(ip);
         }
 
         // Get the month of the event.
@@ -88,6 +94,14 @@ class Entry{
             return reason;
         }
 
+        long long getTimestamp() const{
+            return timestamp;
+        }
+
+        long long getIpNumber() const {
+            return ipNumber;
+        }
+
         // Converter of the abbreviated name of the month to its equivalent in number.
         // Parameters: monthName (const string&) - Abbreviation of the month to be converted.
         // Return: Integer corresponding to the month's number.
@@ -121,24 +135,35 @@ class Entry{
             }
             return totalSeconds;
         }
+        
+        // Calculates the timestamp combining month, day and time in seconds.
+        // O (1)
+        long long timestamp() const{
+            long long m = monthToNumber(month);
+            long d = day;
+            long long s = stringTimeToInteger(time);
+            return(m * 31LL * 86400LL) + (d * 86400LL) + s;
+        }
+
+        // Converts an IP into an integer by by padding each octet to 3 digits.
+        // O(1)
+        static long long ipToNumber(const string& ip) {
+            int o1 = 0, o2 = 0, o3 = 0, o4 = 0;
+            if (sscanf(ip.c_str(), "%d.%d.%d.%d", &o1, &o2, &o3, &o4) == 4) {
+                return (long long)o1 * 1000000000LL + (long long)o2 * 1000000LL + (long long)o3 * 1000LL + (long long)o4;
+            }
+            return 0;
+        }
 
         // Compares the actual object with other Entry object cronologically.
         // Parameters: Other (Entry) - By reference to the object Entry to compare.
         // Return: Boolean value, if the actual object happens before other.
         // O(1)
-        bool useToCompare(const Entry& other) const{
-            int month1 = monthToNumber(month);
-            int month2 = monthToNumber(other.month);
-
-            if (month1 != month2){
-                return month1 < month2;
+        bool useToCompareIp(const Entry& other) const{
+            if (ipNumber != other.ipNumber){
+                return ipNumber < other.ipNumber;
             }
-
-            if (day != other.day){
-                return day < other.day;
-            }
-
-            return stringTimeToInteger(time) < other.stringTimeToInteger(other.time);
+            return timestamp <= other.timestamp;
         }
 
         // Create the line with the entry values.
@@ -151,57 +176,66 @@ class Entry{
 
 };
 
-struct Node {
-    Entry datos;
-    Node* next;
-    Node* prev;
+class Node {
+    public: 
+        Entry datos;
+        Node* next;
+        Node* prev;
 
-    Node(Entry valor){
-        datos = valor;
-        next = nullptr;
-        prev = nullptr;
-    }
+        Node(Entry valor){
+            datos = valor;
+            next = nullptr;
+            prev = nullptr;
+        }
 };
 
 struct StackNode {
-    Node* low;
-    Node* high;
+    Node* address;
     StackNode* next;
 
-    StackNode(Node* lowNode, Node* highNode){
-        low = lowNode;
-        high = highNode;
+    // Constructor of the struct StackNode.
+    // Parameters: nodeAddress (Node*) - Memory address of a Node in the doubly linked list.
+    // Return: None.
+    // O(1)
+    StackNode(Node* nodeAddress) {
+        address = nodeAddress;
         next = nullptr;
     }
 };
 
-class StackConstructor {
+class Stack{
     private: 
-        StackNode* nodoSuperior;
+        StackNode* topNode;
     
     public:
-        StackConstructor(){
-            nodoSuperior = nullptr;
+        Stack(){
+            topNode = nullptr;
+        }
+
+        ~Stack(){
+            while (!isEmpty()){
+                pop();
+            }
         }
     
-        bool vacio() const{
-            return nodoSuperior == nullptr;
+        bool isEmpty() const{
+            return topNode == nullptr;
         }
 
         void push(Node* low, Node* high){
             StackNode* nNode = new StackNode(low, high);
-            nNode->next = nodoSuperior;
-            nodoSuperior = nNode;
+            nNode->next = topNode;
+            topNode = nNode;
         }
 
         bool pop(Node* low, Node* high){
-            if (!vacio()){
+            if (isEmpty()){
                 return false;
             }
-            low = nodoSuperior->low;
-            high = nodoSuperior->high;
-            StackNode* help = nodoSuperior;
-            nodoSuperior = nodoSuperior->next;
+            low = topNode->low;
+            high = topNode->high;
+            StackNode* help = topNode;
+            topNode = topNode->next;
 
             return true;
         }
@@ -211,18 +245,36 @@ class SystemLog{
     private:
         Node* head;
         Node* tail;
-        int contador;
+        int counter;
 
-        // no se hacer esto lol ayuda iris baizabal
-        Node* partir(Node* low, Node* high){
-            Entry pivote;
+        void swapData(Node* a, Node* b) {
+            Entry temp = a->data;
+            a->data = b->data;
+            b->data = temp;
         }
+
+        Node* partition(Node* low, Node* high) {
+            Entry pivot = high->data;
+            Node* i = low->prev;
+
+            for (Node* j = low; j != high; j = j->next) {
+                if (j->data.useToCompare(pivot)) {
+                    i = (i == nullptr) ? low : i->next;
+                    swapData(i, j);
+                }
+            }
+            i = (i == nullptr) ? low : i->next;
+            swapData(i, high);
+            return i;
+        }
+
+
 
     public:
         SystemLog(){
             head = nullptr;
             tail = nullptr;
-            contador = 0;
+            counter = 0;
         }
         
         ~SystemLog(){
@@ -234,9 +286,22 @@ class SystemLog{
             }
         }
 
+        void addEntry(const Entry& entry){
+            Node* newNode = new Node(entry);
+            if (head == nullptr){
+                head = newNode;
+                tail = newNode;
+            } else{
+                tail->next = newNode;
+                newNode->prev = tail;
+                tail = newNode;
+            }
+            counter++;
+        }
+
         void quickSort(){
             if (head != nullptr){
-                StackConstructor stack;
+                Stack stack;
                 stack.push(head, tail);
 
                 Node* low = nullptr;
@@ -260,3 +325,11 @@ class SystemLog{
         }
 
 };
+
+class SystemLog{
+
+};
+
+int main(){
+
+}
