@@ -7,7 +7,8 @@
 
 using namespace std;
 
-
+//Class that represents the information of one line of the txt
+//Stores the month, day, time, ip, reason of the line and timestamp and ipNumber used for comparison
 class Entry{
     private:
         string month;
