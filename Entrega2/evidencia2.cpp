@@ -460,7 +460,7 @@ int main() {
         cout << "Enter the end date (For example: Sep 10): ";
         cin >> endMonth >> endDay;
 
-        systemLog.searchAndExportDate(startMonth, startDay, endMonth, endDay, "output.txt");
+        systemLog.searchAndExportDate(startMonth, startDay, endMonth, endDay, "testCase3.txt");
     } else if (option == "ip" || option == "Ip" || option == "IP"){
         systemLog.quickSort(true);
 
@@ -473,7 +473,7 @@ int main() {
         cout << "Enter the ending IP address (For example: 423.2.230.77): ";
         cin >> endIp;
 
-        systemLog.searchAndExportIp(startIp, endIp, "output.txt");
+        systemLog.searchAndExportIp(startIp, endIp, "testCase3.txt");
     } else{
         cout << "Option not valid" << endl;
     }
