@@ -1,0 +1,38 @@
+8 11
+
+# NODES
+A 0 6
+B 2 9
+C 4 6
+D 3 2
+E 8 7
+F 12 6
+G 9 2
+H 12 2
+
+# EDGES
+A B 5
+A C 4
+A D 7
+B C 3
+C D 6
+C E 5
+D G 6
+E F 4
+E G 3
+F H 5
+G H 2
+
+# FAILED CONNECTION
+C E
+D G
+
+# NEW NODE
+I 6 5
+
+# NEW EDGES
+4
+I C 4
+I D 5
+I E 3
+I G 4

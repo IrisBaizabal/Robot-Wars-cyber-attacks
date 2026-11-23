@@ -1,7 +1,7 @@
 // This program implements CAMPUS CONNECT!, a university network planning system
 // that builds minimum-cost networks, finds communication routes, handles cable
 // failures and campus expansion, and exports visual network graphs using Graphviz.
-// Authors: Carmen Iris Vasquez Baizabal - A00843705 (add team members here)
+// Authors: Carmen Iris Vasquez Baizabal - A00843705, Francisco Santos Martinez Ortiz - A00843605, Erika Esquivel Correa A00841206
 // Date: 11/22/2026
 
 #include <iostream>
@@ -513,6 +513,8 @@ public:
     }
 };
 
+// Adds the campus configuration with a file into the graph
+// O(V+E)
 bool loadCampusFile(string filename, Graph& availableGraph, vector<Edge>& failedEdges,
                     vector<Node>& newNodes, vector<Edge>& newEdges) {
     ifstream readFile(filename);
@@ -602,6 +604,8 @@ bool loadCampusFile(string filename, Graph& availableGraph, vector<Edge>& failed
     return true;
 }
 
+// Compares two network configurations by printing costs, and cables adding/removals
+// O(V^2)
 void compareNetworks(Graph& prevNet, Graph& currNet, string label) {
     int prevCost = prevNet.getTotalCost();
     int currCost = currNet.getTotalCost();
@@ -656,6 +660,8 @@ void compareNetworks(Graph& prevNet, Graph& currNet, string label) {
     cout << endl;
 }
 
+// Generates the graphviz dot script and renders a png diagram
+// O(V^2)
 bool exportVisual(string baseName, string title, Graph& netGraph, Graph& contextGraph,
                   bool showContext, vector<Edge>& failedList, bool showFailed,
                   vector<char>& routePath, vector<Node>& newBuildings) {
@@ -753,7 +759,7 @@ bool exportVisual(string baseName, string title, Graph& netGraph, Graph& context
 }
 
 // Executes the complete CAMPUS CONNECT! simulation across all evaluation phases
-
+// O(V^2)
 void runCampusConnect(string filename, char routeStart, char routeEnd) {
     Graph availableGraph;
     vector<Edge> failedEdges;
@@ -844,7 +850,7 @@ void runCampusConnect(string filename, char routeStart, char routeEnd) {
 }
 
 int main() {
-     string filename = "test_fix.txt";
+     string filename = "test_fix3.txt";
     char startBuilding = 'A';
     char endBuilding = 'F';
 
